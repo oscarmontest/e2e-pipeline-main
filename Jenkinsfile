@@ -6,6 +6,16 @@ pipeline{
         jdk 'Java17'
         maven 'Maven3'
     }
+    environment {
+        APP_NAME = "e2e-pipeline"
+        RELEASE = "1.0.0"
+        DOCKER_USER = "oscarmontes"
+        DOCKER_PASS = 'Pueses0123'
+        IMAGE_NAME = "${DOCKER_USER}" + "/" + "${APP_NAME}"
+        IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+        JENKINS_API_TOKEN = credentials("1114d87a17acdda05b959f4a46b90fa612")
+
+    }
     stages{
 
       stage("Cleanup Workspace"){
@@ -34,6 +44,14 @@ pipeline{
                 sh "mvn test"
             }
 
+        }
+     stage ('Cleanup Artifacts') {
+            steps {
+                script {
+                    sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
+                    sh "docker rmi ${IMAGE_NAME}:latest"
+                }
+            }
         }
    }
 }
